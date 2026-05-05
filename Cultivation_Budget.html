@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annual Cultivation Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:    #1a3c2a;
+    --pine:      #2e6b45;
+    --fern:      #4a8f5f;
+    --sage:      #8ab89a;
+    --mist:      #d6ead9;
+    --cream:     #f5f0e8;
+    --parchment: #ede8dc;
+    --gold:      #c8922a;
+    --gold-lt:   #f5e4c0;
+    --ink:       #1c1c1c;
+    --mid:       #555;
+    --light:     #888;
+    --rule:      #d0cfc7;
+    --white:     #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Instrument Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(42,110,69,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse at 90% 100%, rgba(26,60,42,0.06) 0%, transparent 55%);
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--forest);
+    padding: 36px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg, transparent, transparent 40px,
+      rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px
+    );
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--fern), var(--gold), var(--fern));
+  }
+  .header-inner { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--sage);
+    font-style: italic;
+  }
+
+  /* ── LAYOUT ── */
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── SECTION CARDS ── */
+  .section-card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--rule);
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(26,60,42,0.06);
+    transition: box-shadow 0.2s;
+  }
+  .section-card:hover { box-shadow: 0 4px 20px rgba(26,60,42,0.1); }
+
+  .section-head {
+    background: var(--pine);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-head h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white);
+    font-weight: 500;
+  }
+  .section-icon { font-size: 14px; }
+
+  /* ── TABLE GRID ── */
+  .budget-table { width: 100%; }
+  .table-header {
+    display: grid;
+    grid-template-columns: 1fr 140px 140px;
+    padding: 10px 20px;
+    background: var(--mist);
+    border-bottom: 1px solid var(--rule);
+  }
+  .table-header span {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pine);
+    font-weight: 500;
+  }
+  .table-header span:not(:first-child) { text-align: right; }
+
+  .budget-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 140px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0efe8;
+    align-items: center;
+    transition: background 0.15s;
+  }
+  .budget-row:last-child { border-bottom: none; }
+  .budget-row:hover { background: #fafaf7; }
+
+  .row-label {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .row-note {
+    font-size: 11px;
+    color: var(--light);
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  /* ── INPUTS ── */
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .input-prefix {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--pine);
+    font-weight: 500;
+  }
+  input[type="number"] {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--parchment);
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    padding: 6px 10px;
+    width: 110px;
+    text-align: right;
+    transition: border-color 0.15s, background 0.15s;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--pine);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(46,107,69,0.12);
+  }
+  .readonly-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pine);
+    text-align: right;
+  }
+
+  /* ── SUBTOTAL ROW ── */
+  .subtotal-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 140px;
+    padding: 14px 20px;
+    background: var(--pine);
+    align-items: center;
+  }
+  .subtotal-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--white);
+    font-weight: 500;
+  }
+  .subtotal-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--white);
+    text-align: right;
+  }
+
+  /* ── BUFFER ROW ── */
+  .buffer-card {
+    background: var(--gold-lt);
+    border: 1.5px solid #e8c97a;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(200,146,42,0.1);
+  }
+  .buffer-head {
+    background: var(--gold);
+    padding: 12px 20px;
+  }
+  .buffer-head h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white);
+    font-weight: 500;
+  }
+  .buffer-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 140px;
+    padding: 16px 20px;
+    align-items: center;
+  }
+  .buffer-label { font-size: 14px; color: #7a5a10; font-weight: 600; }
+  .buffer-note  { font-size: 11px; color: #a07828; margin-top: 3px; font-style: italic; }
+  .buffer-val   { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--gold); text-align: right; }
+
+  /* ── LABOR SECTION ── */
+  .labor-row {
+    display: grid;
+    grid-template-columns: 1fr 100px 140px 140px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0efe8;
+    align-items: center;
+    transition: background 0.15s;
+  }
+  .labor-row:hover { background: #fafaf7; }
+  .labor-row:last-child { border-bottom: none; }
+  .labor-table-header {
+    display: grid;
+    grid-template-columns: 1fr 100px 140px 140px;
+    padding: 10px 20px;
+    background: var(--mist);
+    border-bottom: 1px solid var(--rule);
+  }
+  .labor-table-header span {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pine);
+    font-weight: 500;
+  }
+  .labor-table-header span:not(:first-child) { text-align: right; }
+
+  .rate-input-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  input.rate-input {
+    width: 70px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--parchment);
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    padding: 6px 8px;
+    text-align: right;
+    transition: border-color 0.15s, background 0.15s;
+    -moz-appearance: textfield;
+  }
+  input.rate-input::-webkit-inner-spin-button,
+  input.rate-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input.rate-input:focus {
+    outline: none;
+    border-color: var(--pine);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(46,107,69,0.12);
+  }
+
+  /* ── GRAND TOTAL CARD ── */
+  .grand-card {
+    background: var(--forest);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(26,60,42,0.18);
+    position: relative;
+  }
+  .grand-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg, transparent, transparent 30px,
+      rgba(255,255,255,0.015) 30px, rgba(255,255,255,0.015) 31px
+    );
+  }
+  .grand-head {
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+  }
+  .grand-head h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    font-weight: 500;
+  }
+  .grand-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 140px;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    align-items: center;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .grand-row:last-child { border-bottom: none; }
+  .grand-row:hover { background: rgba(255,255,255,0.04); }
+  .grand-label {
+    font-size: 14px;
+    color: var(--mist);
+    font-weight: 500;
+  }
+  .grand-rate {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--sage);
+    margin-top: 3px;
+  }
+  .grand-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--white);
+    text-align: right;
+  }
+  .grand-val.highlight {
+    color: #7dd87d;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+  }
+  .footnote {
+    font-size: 11px;
+    color: var(--light);
+    font-style: italic;
+    line-height: 1.7;
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+  }
+
+  /* ── CHIP BADGE ── */
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(74,143,95,0.15);
+    border: 1px solid rgba(74,143,95,0.3);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--sage);
+    margin-top: 12px;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4adf7a;
+    box-shadow: 0 0 6px #4adf7a;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; } 50% { opacity:0.4; }
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 24px 20px; }
+    .table-header, .budget-row, .subtotal-row, .buffer-row, .grand-row {
+      grid-template-columns: 1fr 110px 110px;
+    }
+    .labor-table-header, .labor-row {
+      grid-template-columns: 1fr 80px 110px 110px;
+    }
+    input[type="number"] { width: 90px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="eyebrow">Cannabis Cultivation Operations</div>
+    <h1>Annual Cultivation Budget</h1>
+    <div class="subtitle">Business Committee Budget Review — Interactive Calculator</div>
+    <div class="live-badge"><span class="live-dot"></span> Live — edits recalculate instantly</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- SUPPLY COSTS -->
+  <div class="section-card">
+    <div class="section-head">
+      <span class="section-icon">🌱</span>
+      <h2>Supply Costs</h2>
+    </div>
+    <div class="budget-table">
+      <div class="table-header">
+        <span>Category</span>
+        <span>Low</span>
+        <span>High</span>
+      </div>
+
+      <div class="budget-row">
+        <div>
+          <div class="row-label">Clones</div>
+          <div class="row-note">800–1,000 units @ $7–$10 ea.</div>
+        </div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="clones_low" value="7000" min="0" step="100" oninput="recalc()"></div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="clones_high" value="10000" min="0" step="100" oninput="recalc()"></div>
+      </div>
+
+      <div class="budget-row">
+        <div>
+          <div class="row-label">Nutrients & Organic Sprays</div>
+          <div class="row-note">Full grow season</div>
+        </div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="nutrients_low" value="15000" min="0" step="100" oninput="recalc()"></div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="nutrients_high" value="20000" min="0" step="100" oninput="recalc()"></div>
+      </div>
+
+      <div class="budget-row">
+        <div>
+          <div class="row-label">Startup Soil</div>
+          <div class="row-note">Canvas bags + transplanting; bulk discount possible</div>
+        </div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="soil_low" value="10000" min="0" step="100" oninput="recalc()"></div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="soil_high" value="20000" min="0" step="100" oninput="recalc()"></div>
+      </div>
+
+      <div class="budget-row">
+        <div>
+          <div class="row-label">Cultivation Supplies</div>
+          <div class="row-note">Trellis nets, drip lines, bamboo, zip ties, plant tags, T-posts</div>
+        </div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="cult_low" value="5000" min="0" step="100" oninput="recalc()"></div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="cult_high" value="5000" min="0" step="100" oninput="recalc()"></div>
+      </div>
+
+      <div class="budget-row">
+        <div>
+          <div class="row-label">Miscellaneous / Tools & Harvest</div>
+          <div class="row-note">Tools, scissors, cleaning supplies, harvest help</div>
+        </div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="misc_low" value="5000" min="0" step="100" oninput="recalc()"></div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="misc_high" value="5000" min="0" step="100" oninput="recalc()"></div>
+      </div>
+
+      <div class="subtotal-row">
+        <div class="subtotal-label">Supply Subtotal</div>
+        <div class="subtotal-val" id="supply_low_total">$42,000</div>
+        <div class="subtotal-val" id="supply_high_total">$60,000</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10% BUFFER -->
+  <div class="buffer-card">
+    <div class="buffer-head"><h2>⚡ 10% Variance Buffer</h2></div>
+    <div class="budget-table">
+      <div class="buffer-row">
+        <div>
+          <div class="buffer-label">Emergency Reserve (10% of Supply Subtotal)</div>
+          <div class="buffer-note">Pump, AC/dehumidifier, greenhouse plastic, motor failures, etc.</div>
+        </div>
+        <div class="buffer-val" id="buffer_low">$4,200</div>
+        <div class="buffer-val" id="buffer_high">$6,000</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CULTIVATOR LABOR -->
+  <div class="section-card">
+    <div class="section-head">
+      <span class="section-icon">👤</span>
+      <h2>Cultivator Labor — Rate Scenarios</h2>
+    </div>
+    <div class="budget-table">
+      <div class="labor-table-header">
+        <span>Scenario</span>
+        <span>Rate/hr</span>
+        <span>Annual (rounded up)</span>
+        <span>Grand Total</span>
+      </div>
+      <div id="labor-rows"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p class="footnote">
+    * Soil costs are a one-time startup expense. In future years soil can be amended and reused, reducing this line item unless cultivation area expands by ~25%.<br>
+    ** All cultivator annual totals are rounded up to the nearest $1,000 (rate × 40 hrs × 52 wks).
+  </p>
+</footer>
+
+<script>
+  const rates = [21, 22, 23, 24, 25];
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+  function roundUp1k(n) {
+    return Math.ceil(n / 1000) * 1000;
+  }
+  function getVal(id) {
+    return parseFloat(document.getElementById(id).value) || 0;
+  }
+
+  function buildLaborRows() {
+    const container = document.getElementById('labor-rows');
+    container.innerHTML = '';
+    rates.forEach((rate, i) => {
+      const row = document.createElement('div');
+      row.className = 'labor-row';
+      row.id = `labor_row_${rate}`;
+      row.innerHTML = `
+        <div>
+          <div class="row-label">Scenario ${i+1}</div>
+          <div class="row-note">${rate * 40 * 52 > roundUp1k(rate * 40 * 52) - 1000 ? '' : ''}Raw: ${fmt(rate * 40 * 52)} → rounded up</div>
+        </div>
+        <div class="rate-input-wrap">
+          <span class="input-prefix">$</span>
+          <input class="rate-input" type="number" id="rate_${rate}" value="${rate}" min="1" step="1" oninput="recalc()">
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--mid)">/hr</span>
+        </div>
+        <div class="readonly-val" id="annual_${rate}">${fmt(roundUp1k(rate * 40 * 52))}</div>
+        <div class="grand-val" id="grand_${rate}" style="color:var(--pine);font-family:'DM Serif Display',serif;font-size:20px;text-align:right">—</div>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function recalc() {
+    // Supply subtotals
+    const sLow  = getVal('clones_low')  + getVal('nutrients_low')  + getVal('soil_low')  + getVal('cult_low')  + getVal('misc_low');
+    const sHigh = getVal('clones_high') + getVal('nutrients_high') + getVal('soil_high') + getVal('cult_high') + getVal('misc_high');
+
+    document.getElementById('supply_low_total').textContent  = fmt(sLow);
+    document.getElementById('supply_high_total').textContent = fmt(sHigh);
+
+    // Buffer
+    const bLow  = sLow  * 0.10;
+    const bHigh = sHigh * 0.10;
+    document.getElementById('buffer_low').textContent  = fmt(bLow);
+    document.getElementById('buffer_high').textContent = fmt(bHigh);
+
+    // Labor rows — read current rate inputs
+    rates.forEach(defaultRate => {
+      const rateInput = document.getElementById(`rate_${defaultRate}`);
+      if (!rateInput) return;
+      const rate = parseFloat(rateInput.value) || defaultRate;
+      const annual = roundUp1k(rate * 40 * 52);
+      const rawVal = rate * 40 * 52;
+
+      document.getElementById(`annual_${defaultRate}`).textContent = fmt(annual);
+
+      // Update note
+      const noteEl = document.querySelector(`#labor_row_${defaultRate} .row-note`);
+      if (noteEl) noteEl.textContent = `Raw: ${fmt(rawVal)} → rounded up to ${fmt(annual)}`;
+
+      // Grand totals use average of low/high supply + buffer
+      const grandLow  = sLow  + bLow  + annual;
+      const grandHigh = sHigh + bHigh + annual;
+      const grandEl = document.getElementById(`grand_${defaultRate}`);
+      if (grandEl) {
+        grandEl.innerHTML = `<span style="font-size:13px;opacity:0.7">${fmt(grandLow)}</span><br><span>${fmt(grandHigh)}</span>`;
+      }
+    });
+  }
+
+  buildLaborRows();
+  recalc();
+</script>
+</body>
+</html>
